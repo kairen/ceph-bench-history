@@ -21,6 +21,9 @@ ENADBLE_MULTI_BLOCK=false
 # Enable benchmarking multi pg_num
 ENADBLE_MULTI_PG=false
 
+# Enable benchmarking multi pg_num
+ENADBLE_OSD_BENCH=false
+
 IO_THREADS="16"
 BLOCK_SIZES="2 4 16 32 64 128 256 512"
 PG_NUMS="16 32 64 128 256"
@@ -149,7 +152,9 @@ function rgw_swift_bench() {
 init_directory
 
 # Benchmarking all osd
-osd_bench
+if ${ENADBLE_OSD_BENCH}; then
+  osd_bench
+fi
 
 # Benchmarking ceph rados storage pool
 if ${ENADBLE_MULTI_BLOCK}; then
