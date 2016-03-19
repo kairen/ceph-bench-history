@@ -10,11 +10,11 @@ ceph-osd[3:4]
 [osds.hybrid]
 ceph-osd[5:6]
 
-# [agents]
-# ceph-agent
-
 [mdss]
-ceph-mds
+ceph-mds1
 
-[mdss]
-ceph-mds
+[rgws]
+ceph-rgw1
+
+[agents]
+ceph-agent

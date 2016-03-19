@@ -5,10 +5,10 @@ pool=bench
 rbdname=bench-image
 rw=randwrite
 bs=4k
-runtime=60
+runtime=20
 direct=1
 rwmixread=100
-numjobs=16
+numjobs=1
 
 [rbd_iodepth32]
 iodepth=32

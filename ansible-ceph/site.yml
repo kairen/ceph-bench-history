@@ -1,0 +1,34 @@
+- hosts: mons
+  become: True
+  roles:
+  - ceph-mon
+
+- hosts: osds.ssd
+  become: True
+  roles:
+  - ceph-osd
+
+- hosts: osds.hdd
+  become: True
+  roles:
+  - ceph-osd
+
+- hosts: osds.hybrid
+  become: True
+  roles:
+  - ceph-osd
+
+- hosts: mdss
+  become: True
+  roles:
+  - ceph-mds
+
+- hosts: rgws
+  become: True
+  roles:
+  - ceph-rgw
+
+- hosts: agents
+  become: True
+  roles:
+  - ceph-common

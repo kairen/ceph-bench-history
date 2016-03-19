@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 HOSTS=$(cat /etc/hosts | grep  "ceph*" | awk '{print $2}')
 
 for host in ${HOSTS}; do
