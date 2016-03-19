@@ -1,0 +1,14 @@
+[global]
+ioengine=rbd
+clientname=admin
+pool=bench
+rbdname=bench-image
+rw=randwrite
+bs=4k
+runtime=60
+direct=1
+rwmixread=100
+numjobs=16
+
+[rbd_iodepth32]
+iodepth=32
