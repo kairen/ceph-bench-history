@@ -12,6 +12,9 @@
 # A executor identity name
 IDENTITY_NAME="ssd"
 
+# Ceph radowgw url
+RADOSGW_URL="localhost"
+
 # Enable benchmarking multi block_size
 ENADBLE_MULTI_BLOCK=false
 
@@ -38,8 +41,8 @@ function osd_bench() {
 
   echo -e "TASK [ Benchmark a ceph object sotrage device ]\n" >> ${FILE_PATH}
   for osd in ${OSD_IDS}; do
-    echo "********* ${osd} *********"
-    time ceph tell ${osd} bench >> ${FILE_PATH}
+    echo "[ -------- ${osd} -------- ]" >> ${FILE_PATH}
+    echo $(time ceph tell ${osd} bench) >> ${FILE_PATH}
   done
 }
 
@@ -55,10 +58,10 @@ function rados_bench() {
   rados bench -p scbench 20 -b ${block_size}K write --no-cleanup >> ${FILE_PATH}
 
   echo -e "TASK [ RADOS benchmark a ceph storage pool (read_seq) ] \n" >> ${FILE_PATH}
-  rados bench -p scbench 20 -b ${block_size}K seq >> ${FILE_PATH}
+  rados bench -p scbench 20  seq >> ${FILE_PATH}
 
   echo -e "TASK [ RADOS benchmark a ceph storage pool (read_rand) ] \n" >> ${FILE_PATH}
-  rados bench -p scbench 20 -b ${block_size}K rand >> ${FILE_PATH}
+  rados bench -p scbench 20 rand >> ${FILE_PATH}
 
   # Clean  and delete radso pool
   rados -p scbench cleanup
@@ -116,6 +119,7 @@ function rgw_swift_bench() {
 
   FILE_PATH="${STORE_PATH}/rgw_swift_bench/${DATE}.txt"
   SWIFT_CONF_PATH="../bench-tools/swift.conf"
+  sudo sed -i "s/auth\s*=.*/auth = http://${RADOSGW_URL}/auth/v1.0/" ${SWIFT_CONF_PATH}
 
   radosgw-admin user create --uid="benchmark" --display-name="benchmark"
   radosgw-admin subuser create --uid=benchmark --subuser=benchmark:swift --access=full
