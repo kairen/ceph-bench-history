@@ -29,6 +29,7 @@ DATE=$(date +"%Y-%m-%d-%T")
 TIMESTAMPE=$(date +%s)
 
 function init_directory() {
+  echo "********* Initiate all directory *********"
   mkdir -p "${STORE_PATH}/osd_bench"
   mkdir -p "${STORE_PATH}/rados_bench"
   mkdir -p "${STORE_PATH}/rbd_bench"
@@ -36,6 +37,7 @@ function init_directory() {
 }
 
 function osd_bench() {
+  echo "********* Benchmarking all osd *********"
   FILE_PATH="${STORE_PATH}/osd_bench/${DATE}.txt"
   OSD_IDS=$(sudo ceph osd tree | grep -o 'osd\.[0-9]*')
 
@@ -49,6 +51,8 @@ function osd_bench() {
 function rados_bench() {
   local block_size=${1:-"4"}
   local pg_num=${2:-"32"}
+
+  echo "********* Benchmarking ceph rados storage pool (bs=${block_size}k, pg_num=${pg_num}) *********"
 
   FILE_PATH="${STORE_PATH}/rados_bench/${DATE}-${block_size}.txt"
   ceph osd pool create scbench ${pg_num} ${pg_num}
@@ -77,6 +81,8 @@ function fio_run() {
 function rbd_bench() {
   local block_size=${1:-"4"}
   local pg_num=${2:-"32"}
+
+  echo "********* Benchmarking ceph rados block device (bs=${block_size}k, pg_num=${pg_num}) *********"
 
   FILE_PATH="${STORE_PATH}/rbd_bench/${DATE}-${block_size}"
   FIO_PATH="../bench-tools/bench.fio"
@@ -117,6 +123,8 @@ function rgw_swift_bench() {
   local put_number=${1:-"1000"}
   local get_number=${2:-"100"}
 
+  echo "********* Benchmarking ceph radosw gateway for swift (put_num=${put_number}, get_num=${get_number}) *********"
+
   FILE_PATH="${STORE_PATH}/rgw_swift_bench/${DATE}.txt"
   SWIFT_CONF_PATH="../bench-tools/swift.conf"
   sudo sed -i "s/auth\s*=.*/auth = http://${RADOSGW_URL}/auth/v1.0/" ${SWIFT_CONF_PATH}
@@ -141,15 +149,12 @@ function rgw_swift_bench() {
 ##############################
 
 # Initiate all directory
-echo "********* Initiate all directory *********"
 init_directory
 
 # Benchmarking all osd
-echo "********* Benchmarking all osd *********"
 osd_bench
 
 # Benchmarking ceph rados storage pool
-echo "********* Benchmarking ceph rados storage pool *********"
 if ${ENADBLE_MULTI_BLOCK}; then
   for block_size in ${BLOCK_SIZES}; do
     if ${ENADBLE_MULTI_PG}; then
@@ -165,7 +170,6 @@ else
 fi
 
 # Benchmarking ceph rados block device
-echo "********* Benchmarking ceph rados block device *********"
 if ${ENADBLE_MULTI_BLOCK}; then
   for block_size in ${BLOCK_SIZES}; do
     if ${ENADBLE_MULTI_PG}; then
@@ -181,5 +185,4 @@ else
 fi
 
 # Benchmarking ceph radosw gateway for swift
-echo "********* Benchmarking ceph radosw gateway for swift *********"
 rgw_swift_bench
