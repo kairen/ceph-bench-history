@@ -30,21 +30,18 @@ TIMESTAMPE=$(date +%s)
 
 function init_directory() {
   echo "********* Initiate all directory *********"
-  mkdir -p "${STORE_PATH}/osd_bench"
   mkdir -p "${STORE_PATH}/rados_bench"
   mkdir -p "${STORE_PATH}/rbd_bench"
   mkdir -p "${STORE_PATH}/rgw_swift_bench"
 }
 
 function osd_bench() {
-  echo "********* Benchmarking all osd *********"
-  FILE_PATH="${STORE_PATH}/osd_bench/${DATE}.txt"
+  echo "********* Benchmark and check all osd *********"
   OSD_IDS=$(sudo ceph osd tree | grep -o 'osd\.[0-9]*')
 
-  echo -e "TASK [ Benchmark a ceph object sotrage device ]\n" >> ${FILE_PATH}
   for osd in ${OSD_IDS}; do
-    echo "[ -------- ${osd} -------- ]" >> ${FILE_PATH}
-    echo $(time ceph tell ${osd} bench) >> ${FILE_PATH}
+    echo "[ -------- ${osd} -------- ]"
+    echo $(time ceph tell ${osd} bench)
   done
 }
 
@@ -58,13 +55,13 @@ function rados_bench() {
   ceph osd pool create scbench ${pg_num} ${pg_num}
   sleep 10
 
-  echo -e "TASK [ RADOS benchmark a ceph storage pool (write) ] \n" >> ${FILE_PATH}
+  echo -e "\nTASK [ RADOS benchmark a ceph storage pool (write) ]" >> ${FILE_PATH}
   rados bench -p scbench 20 -b ${block_size}K write --no-cleanup >> ${FILE_PATH}
 
-  echo -e "TASK [ RADOS benchmark a ceph storage pool (read_seq) ] \n" >> ${FILE_PATH}
+  echo -e "\nTASK [ RADOS benchmark a ceph storage pool (read_seq) ]" >> ${FILE_PATH}
   rados bench -p scbench 20  seq >> ${FILE_PATH}
 
-  echo -e "TASK [ RADOS benchmark a ceph storage pool (read_rand) ] \n" >> ${FILE_PATH}
+  echo -e "\nTASK [ RADOS benchmark a ceph storage pool (read_rand) ]" >> ${FILE_PATH}
   rados bench -p scbench 20 rand >> ${FILE_PATH}
 
   # Clean  and delete radso pool
@@ -92,25 +89,25 @@ function rbd_bench() {
   rbd create rbdimage --size 2048 --pool rbdbench
   rbd map rbdimage --pool rbdbench --name client.admin
 
-  echo -e "TASK [ Benchmark a ceph block device (write) ] \n" >> "${FILE_PATH}-bench-write.txt"
+  echo -e "\nTASK [ Benchmark a ceph block device (write) ]" >> "${FILE_PATH}-bench-write.txt"
   rbd bench-write rbdimage --io-size ${block_size}K --io-threads 1 --pool=rbdbench >> "${FILE_PATH}-bench-write.txt"
 
-  echo -e "TASK [ Benchmark a ceph block device (fio_read) ] \n" >> "${FILE_PATH}-fio-read.txt"
+  echo -e "\nTASK [ Benchmark a ceph block device (fio_read) ]" >> "${FILE_PATH}-fio-read.txt"
   fio_run ${block_size} read ${FIO_PATH} >> "${FILE_PATH}-fio-read.txt"
 
-  echo -e "TASK [ Benchmark a ceph block device (fio_write) ]\n" >> "${FILE_PATH}-fio-write.txt"
+  echo -e "\nTASK [ Benchmark a ceph block device (fio_write) ]" >> "${FILE_PATH}-fio-write.txt"
   fio_run ${block_size} write ${FIO_PATH} >> "${FILE_PATH}-fio-write.txt"
 
-  echo -e "TASK [ Benchmark a ceph block device (fio_randread) ] \n" >> "${FILE_PATH}-fio-randread.txt"
+  echo -e "\nTASK [ Benchmark a ceph block device (fio_randread) ]" >> "${FILE_PATH}-fio-randread.txt"
   fio_run ${block_size} randread ${FIO_PATH} >> "${FILE_PATH}-fio-randread.txt"
 
-  echo -e "TASK [ Benchmark a ceph block device (fio_randwrite) ] \n" >> "${FILE_PATH}-fio-randwrite.txt"
+  echo -e "\nTASK [ Benchmark a ceph block device (fio_randwrite) ]" >> "${FILE_PATH}-fio-randwrite.txt"
   fio_run ${block_size} randwrite ${FIO_PATH} >> "${FILE_PATH}-fio-randwrite.txt"
 
-  echo -e "TASK [ Benchmark a ceph block device (fio_rw) ] \n" >> "${FILE_PATH}-fio-rw.txt"
+  echo -e "\nTASK [ Benchmark a ceph block device (fio_rw) ]" >> "${FILE_PATH}-fio-rw.txt"
   fio_run ${block_size} rw ${FIO_PATH} >> "${FILE_PATH}-fio-rw.txt"
 
-  echo -e "TASK [ Benchmark a ceph block device (fio_randrw) ] \n" >> "${FILE_PATH}-fio-randrw.txt"
+  echo -e "\nTASK [ Benchmark a ceph block device (fio_randrw) ]" >> "${FILE_PATH}-fio-randrw.txt"
   fio_run ${block_size} randrw ${FIO_PATH} >> "${FILE_PATH}-fio-randrw.txt"
 
   # Clean and delete rbd
@@ -134,7 +131,7 @@ function rgw_swift_bench() {
   radosgw-admin key create --subuser=benchmark:swift --key-type=swift --secret=guessme
   radosgw-admin user modify --uid=benchmark --max-buckets=0
 
-  echo -e "TASK [ Benchmark a ceph object gateway ]\n" >> ${FILE_PATH}
+  echo -e "\nTASK [ Benchmark a ceph object gateway ]" >> ${FILE_PATH}
   # The -n and -g parameters control the number of objects to PUT and GET respectively.
   swift-bench -c 64 -s 4096 -n ${put_number} -g ${get_number} ${SWIFT_CONF_PATH} >> ${FILE_PATH}
 

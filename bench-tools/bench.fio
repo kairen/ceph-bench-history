@@ -1,8 +1,8 @@
 [global]
 ioengine=rbd
 clientname=admin
-pool=bench
-rbdname=bench-image
+pool=rbdbench
+rbdname=rbdimage
 rw=randwrite
 bs=4k
 runtime=20
