@@ -155,7 +155,7 @@ ceph_stable: true # use ceph stable branch
 # generated, you may find it useful to disable fsid generation to
 # avoid cluttering up your ansible repo. If you set `generate_fsid` to
 # false, you *must* generate `fsid` in another way.
-fsid: f7fa3999-ae1a-40d9-bddf-0d63dfb49168 
+fsid: f7fa3999-ae1a-40d9-bddf-0d63dfb49168
 #generate_fsid: true
 
 #cephx: true
@@ -210,7 +210,7 @@ journal_size: 20000
 #pool_default_pgp_num: 128
 #pool_default_size: 2
 #pool_default_min_size: 1
-public_network: 10.26.1.0/24 
+public_network: 10.26.1.0/24
 cluster_network: 172.17.0.0/24
 osd_mkfs_type: xfs
 #osd_mkfs_options_xfs: -f -i size=2048
@@ -265,8 +265,8 @@ osd_recovery_threads: 1
 ## Rados Gateway options
 #
 #radosgw_dns_name: your.subdomain.tld # subdomains used by radosgw. See http://ceph.com/docs/master/radosgw/config/#enabling-subdomain-s3-calls
-#radosgw_frontend: civetweb # supported options are 'apache' or 'civetweb', also edit roles/ceph-rgw/defaults/main.yml
-#radosgw_civetweb_port: 8080 # on Infernalis we get: "set_ports_option: cannot bind to 80: 13 (Permission denied)"
+radosgw_frontend: civetweb # supported options are 'apache' or 'civetweb', also edit roles/ceph-rgw/defaults/main.yml
+radosgw_civetweb_port: 8080 # on Infernalis we get: "set_ports_option: cannot bind to 80: 13 (Permission denied)"
 #radosgw_keystone: false # activate OpenStack Keystone options full detail here: http://ceph.com/docs/master/radosgw/keystone/
 #radosgw_keystone_url: # url:admin_port ie: http://192.168.0.1:35357
 #radosgw_keystone_admin_token: password
@@ -332,4 +332,3 @@ osd_recovery_threads: 1
 ##########
 
 #docker: false
-

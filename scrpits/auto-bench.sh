@@ -2,7 +2,7 @@
 # Program:
 #       This program is auto benchmarking ceph.
 # History:
-# 2016/3/30 Kyle Bai <kyle.b@inwinstack.com> Release
+# 2016/3/20 Kyle Bai <kyle.b@inwinstack.com> Release
 #  _  _ _   _ _____ ___   _  __    _       ___      _
 # | \| | | | |_   _/ __| | |/ _  _| |___  | _ )__ _(_)
 # | .` | |_| | | || (__  | ' | || | / -_)_| _ / _` | |
@@ -12,7 +12,7 @@
 # A executor identity name
 IDENTITY_NAME="ssd"
 
-# Ceph radowgw url
+# Ceph radowgw address and port
 RADOSGW_URL="localhost"
 
 # Enable benchmarking multi block_size
@@ -33,9 +33,9 @@ TIMESTAMPE=$(date +%s)
 
 function init_directory() {
   echo "********* Initiate all directory *********"
-  mkdir -p "${STORE_PATH}/rados_bench"
-  mkdir -p "${STORE_PATH}/rbd_bench"
-  mkdir -p "${STORE_PATH}/rgw_swift_bench"
+  mkdir -p "${STORE_PATH}/rados_bench/${DATE}"
+  mkdir -p "${STORE_PATH}/rbd_bench/${DATE}"
+  mkdir -p "${STORE_PATH}/rgw_swift_bench/${DATE}"
 }
 
 function osd_bench() {
@@ -48,23 +48,28 @@ function osd_bench() {
   done
 }
 
+function msg() {
+  echo -e $1
+  echo -e $1 >> $2
+}
+
 function rados_bench() {
   local block_size=${1:-"4"}
   local pg_num=${2:-"32"}
 
   echo "********* Benchmarking ceph rados storage pool (bs=${block_size}k, pg_num=${pg_num}) *********"
 
-  FILE_PATH="${STORE_PATH}/rados_bench/${DATE}-${block_size}.txt"
+  FILE_PATH="${STORE_PATH}/rados_bench/${DATE}/rados-bench-${block_size}.txt"
   ceph osd pool create scbench ${pg_num} ${pg_num}
   sleep 10
 
-  echo -e "\nTASK [ RADOS benchmark a ceph storage pool (write) ]" >> ${FILE_PATH}
+  msg "\nTASK [ RADOS benchmark a ceph storage pool (write) ]" ${FILE_PATH}
   rados bench -p scbench 20 -b ${block_size}K write --no-cleanup >> ${FILE_PATH}
 
-  echo -e "\nTASK [ RADOS benchmark a ceph storage pool (read_seq) ]" >> ${FILE_PATH}
+  msg "\nTASK [ RADOS benchmark a ceph storage pool (read_seq) ]" ${FILE_PATH}
   rados bench -p scbench 20  seq >> ${FILE_PATH}
 
-  echo -e "\nTASK [ RADOS benchmark a ceph storage pool (read_rand) ]" >> ${FILE_PATH}
+  msg "\nTASK [ RADOS benchmark a ceph storage pool (read_rand) ]" ${FILE_PATH}
   rados bench -p scbench 20 rand >> ${FILE_PATH}
 
   # Clean  and delete radso pool
@@ -84,7 +89,7 @@ function rbd_bench() {
 
   echo "********* Benchmarking ceph rados block device (bs=${block_size}k, pg_num=${pg_num}) *********"
 
-  FILE_PATH="${STORE_PATH}/rbd_bench/${DATE}-${block_size}"
+  FILE_PATH="${STORE_PATH}/rbd_bench/${DATE}/rbd-bench-${block_size}"
   FIO_PATH="../bench-tools/bench.fio"
   ceph osd pool create rbdbench ${pg_num} ${pg_num}
   sleep 10
@@ -92,25 +97,25 @@ function rbd_bench() {
   rbd create rbdimage --size 2048 --pool rbdbench
   rbd map rbdimage --pool rbdbench --name client.admin
 
-  echo -e "\nTASK [ Benchmark a ceph block device (write) ]" >> "${FILE_PATH}-bench-write.txt"
+  msg "\nTASK [ Benchmark a ceph block device (write) ]" "${FILE_PATH}-bench-write.txt"
   rbd bench-write rbdimage --io-size ${block_size}K --io-threads 1 --pool=rbdbench >> "${FILE_PATH}-bench-write.txt"
 
-  echo -e "\nTASK [ Benchmark a ceph block device (fio_read) ]" >> "${FILE_PATH}-fio-read.txt"
+  msg "\nTASK [ Benchmark a ceph block device (fio_read) ]" "${FILE_PATH}-fio-read.txt"
   fio_run ${block_size} read ${FIO_PATH} >> "${FILE_PATH}-fio-read.txt"
 
-  echo -e "\nTASK [ Benchmark a ceph block device (fio_write) ]" >> "${FILE_PATH}-fio-write.txt"
+  msg "\nTASK [ Benchmark a ceph block device (fio_write) ]" "${FILE_PATH}-fio-write.txt"
   fio_run ${block_size} write ${FIO_PATH} >> "${FILE_PATH}-fio-write.txt"
 
-  echo -e "\nTASK [ Benchmark a ceph block device (fio_randread) ]" >> "${FILE_PATH}-fio-randread.txt"
+  msg "\nTASK [ Benchmark a ceph block device (fio_randread) ]" "${FILE_PATH}-fio-randread.txt"
   fio_run ${block_size} randread ${FIO_PATH} >> "${FILE_PATH}-fio-randread.txt"
 
-  echo -e "\nTASK [ Benchmark a ceph block device (fio_randwrite) ]" >> "${FILE_PATH}-fio-randwrite.txt"
+  msg "\nTASK [ Benchmark a ceph block device (fio_randwrite) ]" "${FILE_PATH}-fio-randwrite.txt"
   fio_run ${block_size} randwrite ${FIO_PATH} >> "${FILE_PATH}-fio-randwrite.txt"
 
-  echo -e "\nTASK [ Benchmark a ceph block device (fio_rw) ]" >> "${FILE_PATH}-fio-rw.txt"
+  msg "\nTASK [ Benchmark a ceph block device (fio_rw) ]" "${FILE_PATH}-fio-rw.txt"
   fio_run ${block_size} rw ${FIO_PATH} >> "${FILE_PATH}-fio-rw.txt"
 
-  echo -e "\nTASK [ Benchmark a ceph block device (fio_randrw) ]" >> "${FILE_PATH}-fio-randrw.txt"
+  msg "\nTASK [ Benchmark a ceph block device (fio_randrw) ]" "${FILE_PATH}-fio-randrw.txt"
   fio_run ${block_size} randrw ${FIO_PATH} >> "${FILE_PATH}-fio-randrw.txt"
 
   # Clean and delete rbd
@@ -120,22 +125,23 @@ function rbd_bench() {
 }
 
 function rgw_swift_bench() {
+
+  # The -n and -g parameters control the number of objects to PUT and GET respectively.
   local put_number=${1:-"1000"}
   local get_number=${2:-"100"}
 
   echo "********* Benchmarking ceph radosw gateway for swift (put_num=${put_number}, get_num=${get_number}) *********"
 
-  FILE_PATH="${STORE_PATH}/rgw_swift_bench/${DATE}.txt"
+  FILE_PATH="${STORE_PATH}/rgw_swift_bench/${DATE}/rgw-swift-bench-${put_number}-${get_number}.txt"
   SWIFT_CONF_PATH="../bench-tools/swift.conf"
   sudo sed -i "s/auth\s*=.*/auth = http://${RADOSGW_URL}/auth/v1.0/" ${SWIFT_CONF_PATH}
 
-  radosgw-admin user create --uid="benchmark" --display-name="benchmark"
-  radosgw-admin subuser create --uid=benchmark --subuser=benchmark:swift --access=full
-  radosgw-admin key create --subuser=benchmark:swift --key-type=swift --secret=guessme
-  radosgw-admin user modify --uid=benchmark --max-buckets=0
+  radosgw-admin user create --uid="benchmark" --display-name="benchmark" &>/dev/null
+  radosgw-admin subuser create --uid=benchmark --subuser=benchmark:swift --access=full &>/dev/null
+  radosgw-admin key create --subuser=benchmark:swift --key-type=swift --secret=guessme &>/dev/null
+  radosgw-admin user modify --uid=benchmark --max-buckets=0 &>/dev/null
 
-  echo -e "\nTASK [ Benchmark a ceph object gateway ]" >> ${FILE_PATH}
-  # The -n and -g parameters control the number of objects to PUT and GET respectively.
+  msg "\nTASK [ Benchmark a ceph object gateway ]" ${FILE_PATH}
   swift-bench -c 64 -s 4096 -n ${put_number} -g ${get_number} ${SWIFT_CONF_PATH} >> ${FILE_PATH}
 
   # Remove radosgw account
