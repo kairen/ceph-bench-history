@@ -59,18 +59,18 @@ function rados_bench() {
 
   echo "********* Benchmarking ceph rados storage pool (bs=${block_size}k, pg_num=${pg_num}) *********"
 
-  FILE_PATH="${STORE_PATH}/rados_bench/${DATE}/rados-bench-${block_size}.txt"
+  FILE_PATH="${STORE_PATH}/rados_bench/${DATE}"
   ceph osd pool create scbench ${pg_num} ${pg_num}
   sleep 10
 
-  msg "\nTASK [ RADOS benchmark a ceph storage pool (write) ]" ${FILE_PATH}
-  rados bench -p scbench 20 -b ${block_size}K write --no-cleanup >> ${FILE_PATH}
+  msg "\nTASK [ RADOS benchmark a ceph storage pool (write) ]" "${FILE_PATH}/rados-write-${block_size}.txt"
+  rados bench -p scbench 20 -b ${block_size}K write --no-cleanup >> "${FILE_PATH}/rados-write-${block_size}.txt"
 
-  msg "\nTASK [ RADOS benchmark a ceph storage pool (read_seq) ]" ${FILE_PATH}
-  rados bench -p scbench 20  seq >> ${FILE_PATH}
+  msg "\nTASK [ RADOS benchmark a ceph storage pool (read_seq) ]" "${FILE_PATH}/rados-read-seq-${block_size}.txt"
+  rados bench -p scbench 20  seq >> "${FILE_PATH}/rados-read-seq-${block_size}.txt"
 
-  msg "\nTASK [ RADOS benchmark a ceph storage pool (read_rand) ]" ${FILE_PATH}
-  rados bench -p scbench 20 rand >> ${FILE_PATH}
+  msg "\nTASK [ RADOS benchmark a ceph storage pool (read_rand) ]" "${FILE_PATH}/rados-read-rand-${block_size}.txt"
+  rados bench -p scbench 20 rand >> "${FILE_PATH}/rados-read-rand-${block_size}.txt"
 
   # Clean  and delete radso pool
   rados -p scbench cleanup
