@@ -59,7 +59,8 @@ function rados_bench() {
 
   echo "********* Benchmarking ceph rados storage pool (bs=${block_size}k, pg_num=${pg_num}) *********"
 
-  FILE_PATH="${STORE_PATH}/rados_bench/${DATE}"
+  FILE_PATH="${STORE_PATH}/rados_bench/${DATE}/${pg_num}"
+  mkdir -p ${FILE_PATH}
   ceph osd pool create scbench ${pg_num} ${pg_num}
   sleep 10
 
@@ -89,7 +90,9 @@ function rbd_bench() {
 
   echo "********* Benchmarking ceph rados block device (bs=${block_size}k, pg_num=${pg_num}) *********"
 
-  FILE_PATH="${STORE_PATH}/rbd_bench/${DATE}/rbd-bench-${block_size}"
+  FILE_PATH="${STORE_PATH}/rbd_bench/${DATE}/${pg_num}"
+  mkdir -p ${FILE_PATH}
+  FILE_PATH="${FILE_PATH}/rbd-bench-${block_size}"
   FIO_PATH="../bench-tools/bench.fio"
   ceph osd pool create rbdbench ${pg_num} ${pg_num}
   sleep 10
