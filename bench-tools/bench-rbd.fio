@@ -3,10 +3,10 @@ ioengine=rbd
 clientname=admin
 pool=rbdbench
 rbdname=rbdimage
-rw=randwrite
-bs=4k
-runtime=20
+rw=randrw
+bs=256k
+runtime=10
 direct=1
 
 [rbd_iodepth32]
-iodepth=32
+iodepth=1

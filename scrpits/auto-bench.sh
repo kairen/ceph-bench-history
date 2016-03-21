@@ -27,7 +27,7 @@ ENADBLE_MULTI_PG=false
 # Enable benchmarking multi pg_num
 ENADBLE_OSD_BENCH=false
 
-RUN_TIME="10"
+RUN_TIME="20"
 IO_THREADS="16"
 BLOCK_SIZES="2 4 16 32 64 128 256 512"
 PG_NUMS="32 64 128 256"
@@ -118,7 +118,7 @@ function rbd_bench() {
 
   FIO_TYPES="read write randread randwrite rw randrw"
   for types in ${FIO_TYPES}; do
-    msg "\nTASK [ Benchmark a ceph block device (${types}) ]" "${FILE_PATH}-fio-${types}.txt"
+    msg "\nTASK [ Benchmark a ceph block device (fio-${types}) ]" "${FILE_PATH}-fio-${types}.txt"
     fio_run ${block_size} ${types} ${RUN_TIME} ${FIO_PATH} >> "${FILE_PATH}-fio-${types}.txt"
   done
 
@@ -173,9 +173,9 @@ function cephfs_bench() {
 
   FIO_TYPES="read write randread randwrite rw randrw"
   for types in ${FIO_TYPES}; do
-    msg "\nTASK [ Benchmark a ceph block device (${types}) ]" "${FILE_PATH}-fio-${types}.txt"
+    msg "\nTASK [ Benchmark a ceph block device (fio-${types}) ]" "${FILE_PATH}-fio-${types}.txt"
     fio --filename=ceph-fuse --direct=1 --rw=${types} \
-    --ioengine=libaio --bs=${block_size}k --rwmixread=100 --iodepth=16 \
+    --ioengine=libaio --bs=${block_size}k --rwmixread=100 --iodepth=1 \
     --numjobs=1 --runtime=${RUN_TIME} --group_reporting \
     --name=bench-fs >> "${FILE_PATH}-fio-${types}.txt"
   done
