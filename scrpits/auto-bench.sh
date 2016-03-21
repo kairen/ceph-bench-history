@@ -33,24 +33,28 @@ TIMESTAMPE=$(date +%s)
 
 function init_directory() {
   echo "********* Initiate all directory *********"
+  mkdir -p "${STORE_PATH}/osd_bench/${DATE}"
   mkdir -p "${STORE_PATH}/rados_bench/${DATE}"
   mkdir -p "${STORE_PATH}/rbd_bench/${DATE}"
   mkdir -p "${STORE_PATH}/rgw_swift_bench/${DATE}"
 }
 
-function osd_bench() {
-  echo "********* Benchmark and check all osd *********"
-  OSD_IDS=$(sudo ceph osd tree | grep -o 'osd\.[0-9]*')
-
-  for osd in ${OSD_IDS}; do
-    echo "[ -------- ${osd} -------- ]"
-    echo $(time ceph tell ${osd} bench)
-  done
-}
-
 function msg() {
   echo -e $1
   echo -e $1 >> $2
+}
+
+function osd_bench() {
+  echo "********* Benchmark and check all osd *********"
+
+  FILE_PATH="${STORE_PATH}/osd_bench/${DATE}/osd-bench.txt"
+  OSD_IDS=$(sudo ceph osd tree | grep -o 'osd\.[0-9]*')
+
+
+  for osd in ${OSD_IDS}; do
+    msg "[ -------- ${osd} -------- ]" ${FILE_PATH}
+    time ceph tell ${osd} bench >> ${FILE_PATH} 2>&1
+  done
 }
 
 function rados_bench() {
@@ -62,7 +66,7 @@ function rados_bench() {
   FILE_PATH="${STORE_PATH}/rados_bench/${DATE}/${pg_num}"
   mkdir -p ${FILE_PATH}
   ceph osd pool create scbench ${pg_num} ${pg_num}
-  sleep 10
+  sleep 15
 
   msg "\nTASK [ RADOS benchmark a ceph storage pool (write) ]" "${FILE_PATH}/rados-write-${block_size}.txt"
   rados bench -p scbench 20 -b ${block_size}K write --no-cleanup >> "${FILE_PATH}/rados-write-${block_size}.txt"
@@ -95,7 +99,7 @@ function rbd_bench() {
   FILE_PATH="${FILE_PATH}/rbd-bench-${block_size}"
   FIO_PATH="../bench-tools/bench.fio"
   ceph osd pool create rbdbench ${pg_num} ${pg_num}
-  sleep 10
+  sleep 15
 
   rbd create rbdimage --size 2048 --pool rbdbench
   rbd map rbdimage --pool rbdbench --name client.admin
@@ -132,7 +136,7 @@ function rgw_swift_bench() {
   # The -n and -g parameters control the number of objects to PUT and GET respectively.
   local put_number=${1:-"1000"}
   local get_number=${2:-"100"}
-  local url = "http:\/\/${RADOSGW_URL}\/auth\/v1.0\/"
+  local url="http:\/\/${RADOSGW_URL}\/auth\/v1.0\/"
 
   echo "********* Benchmarking ceph radosw gateway for swift (put_num=${put_number}, get_num=${get_number}) *********"
 
@@ -147,7 +151,7 @@ function rgw_swift_bench() {
   radosgw-admin user modify --uid=benchmark --max-buckets=0 &>/dev/null
 
   msg "\nTASK [ Benchmark a ceph object gateway ]" ${FILE_PATH}
-  swift-bench -c 64 -s 4096 -n ${put_number} -g ${get_number} ${SWIFT_CONF_PATH} >> ${FILE_PATH}
+  swift-bench -c 64 -s 4096 -n ${put_number} -g ${get_number} ${SWIFT_CONF_PATH} >> ${FILE_PATH} 2>&1
 
   # Remove radosgw account
   radosgw-admin user rm --uid=benchmark
