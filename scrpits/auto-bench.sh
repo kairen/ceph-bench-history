@@ -129,12 +129,14 @@ function rgw_swift_bench() {
   # The -n and -g parameters control the number of objects to PUT and GET respectively.
   local put_number=${1:-"1000"}
   local get_number=${2:-"100"}
+  local url = "http:\/\/${RADOSGW_URL}\/auth\/v1.0\/"
 
   echo "********* Benchmarking ceph radosw gateway for swift (put_num=${put_number}, get_num=${get_number}) *********"
 
   FILE_PATH="${STORE_PATH}/rgw_swift_bench/${DATE}/rgw-swift-bench-${put_number}-${get_number}.txt"
   SWIFT_CONF_PATH="../bench-tools/swift.conf"
-  sudo sed -i "s/auth\s*=.*/auth = http://${RADOSGW_URL}/auth/v1.0/" ${SWIFT_CONF_PATH}
+
+  sudo sed -i "s/auth\s*=.*/auth = ${url} /g" ${SWIFT_CONF_PATH}
 
   radosgw-admin user create --uid="benchmark" --display-name="benchmark" &>/dev/null
   radosgw-admin subuser create --uid=benchmark --subuser=benchmark:swift --access=full &>/dev/null
