@@ -2,7 +2,7 @@
 
 sudo apt-get update
 sudo apt-get install -y librbd-dev zlib1g-dev libaio1 libaio-dev make git iperf python-pip python-dev python-virtualenv
-sudo apt-get install -y bonnie++
+sudo apt-get install -y bonnie++ ioping hdparm
 
 # Installing swift benchmark
 sudo pip install swift swift-bench greenlet

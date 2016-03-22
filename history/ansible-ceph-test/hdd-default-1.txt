@@ -1,0 +1,297 @@
+-6 2.00000 root hdd_default
+-4 1.00000     host ceph-osd4
+ 4 0.43599         osd.4           up  1.00000          1.00000
+ 7 0.43599         osd.7           up  1.00000          1.00000
+-5 1.00000     host ceph-osd3
+ 5 0.43599         osd.5           up  1.00000          1.00000
+ 6 0.43599         osd.6           up  1.00000          1.00000
+
+PG Dumps
+----------------
+osd.4   19
+osd.5   16
+osd.6   16
+osd.7   13
+osd.0   0
+osd.1   0
+osd.2   0
+osd.3   0
+----------------
+Total:  64
+
+host ceph-osd4 {
+id -4	# do not change unnecessarily
+# weight 0.871
+alg straw
+hash 0	# rjenkins1
+item osd.4 weight 0.436
+item osd.7 weight 0.436
+}
+host ceph-osd3 {
+id -5	# do not change unnecessarily
+# weight 0.871
+alg straw
+hash 0	# rjenkins1
+item osd.5 weight 0.436
+item osd.6 weight 0.436
+}
+root hdd_default {
+id -6	# do not change unnecessarily
+# weight 2.00
+alg straw
+hash 0	# rjenkins1
+item ceph-osd4 weight 1.00
+item ceph-osd3 weight 1.00
+}
+rule replicated_hdd_ruleset {
+ruleset 1
+type replicated
+min_size 1
+max_size 10
+step take hdd_default
+step chooseleaf firstn 0 type host
+step emit
+}
+[ ———————————————————————— WRITE ———————————————————————— ]
+filename: /dev/rbd1, rw: write, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 1
+----------------
+ Step-1 iops=481
+ Step-2 iops=463
+ Step-3 iops=448
+ Step-4 iops=454
+ Step-5 iops=473
+ Step-6 iops=455
+ Step-7 iops=462
+ Step-8 iops=485
+ Step-9 iops=458
+Step-10 iops=446
+----------------
+IOPS - AVG: 462 MIX: 446 MAX: 485
+
+filename: /dev/rbd1, rw: write, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 2
+----------------
+ Step-1 iops=713
+ Step-2 iops=845
+ Step-3 iops=889
+ Step-4 iops=880
+ Step-5 iops=852
+ Step-6 iops=878
+ Step-7 iops=848
+ Step-8 iops=801
+ Step-9 iops=766
+Step-10 iops=841
+----------------
+IOPS - AVG: 831 MIX: 713 MAX: 889
+
+filename: /dev/rbd1, rw: write, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 4
+----------------
+ Step-1 iops=1120
+ Step-2 iops=1082
+ Step-3 iops=1013
+ Step-4 iops=1099
+ Step-5 iops=1157
+ Step-6 iops=1108
+ Step-7 iops=1050
+ Step-8 iops=1067
+ Step-9 iops=1026
+Step-10 iops=1064
+----------------
+IOPS - AVG: 1078 MIX: 1013 MAX: 1157
+
+filename: /dev/rbd1, rw: write, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 8
+----------------
+ Step-1 iops=1174
+ Step-2 iops=951
+ Step-3 iops=998
+ Step-4 iops=929
+ Step-5 iops=1170
+ Step-6 iops=1082
+ Step-7 iops=952
+ Step-8 iops=1090
+ Step-9 iops=1036
+Step-10 iops=1039
+----------------
+IOPS - AVG: 1042 MIX: 929 MAX: 1174
+
+filename: /dev/rbd1, rw: write, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 16
+----------------
+ Step-1 iops=1067
+ Step-2 iops=1053
+ Step-3 iops=1002
+ Step-4 iops=1033
+ Step-5 iops=1020
+ Step-6 iops=972
+ Step-7 iops=1005
+ Step-8 iops=968
+ Step-9 iops=1074
+Step-10 iops=1004
+----------------
+IOPS - AVG: 1019 MIX: 968 MAX: 1074
+
+[ ———————————————————————— READ ———————————————————————— ]
+filename: /dev/rbd1, rw: read, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 1
+----------------
+ Step-1 iops=14806
+ Step-2 iops=14964
+ Step-3 iops=14843
+ Step-4 iops=14972
+ Step-5 iops=14931
+ Step-6 iops=14946
+ Step-7 iops=14711
+ Step-8 iops=14883
+ Step-9 iops=14929
+Step-10 iops=14862
+----------------
+IOPS - AVG: 14884 MIX: 14711 MAX: 14972
+
+filename: /dev/rbd1, rw: read, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 2
+----------------
+ Step-1 iops=22888
+ Step-2 iops=22346
+ Step-3 iops=22637
+ Step-4 iops=21691
+ Step-5 iops=22635
+ Step-6 iops=22009
+ Step-7 iops=21718
+ Step-8 iops=22428
+ Step-9 iops=22188
+Step-10 iops=22314
+----------------
+IOPS - AVG: 22285 MIX: 21691 MAX: 22888
+
+filename: /dev/rbd1, rw: read, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 4
+----------------
+ Step-1 iops=31727
+ Step-2 iops=31441
+ Step-3 iops=31028
+ Step-4 iops=31053
+ Step-5 iops=30710
+ Step-6 iops=31568
+ Step-7 iops=31548
+ Step-8 iops=32018
+ Step-9 iops=32194
+Step-10 iops=31624
+----------------
+IOPS - AVG: 31491 MIX: 30710 MAX: 32194
+
+filename: /dev/rbd1, rw: read, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 8
+----------------
+ Step-1 iops=36306
+ Step-2 iops=36615
+ Step-3 iops=36901
+ Step-4 iops=34801
+ Step-5 iops=36606
+ Step-6 iops=34521
+ Step-7 iops=37415
+ Step-8 iops=36686
+ Step-9 iops=35277
+Step-10 iops=35766
+----------------
+IOPS - AVG: 36089 MIX: 34521 MAX: 37415
+
+filename: /dev/rbd1, rw: read, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 16
+----------------
+ Step-1 iops=27737
+ Step-2 iops=25043
+ Step-3 iops=25258
+ Step-4 iops=27417
+ Step-5 iops=24741
+ Step-6 iops=25711
+ Step-7 iops=26452
+ Step-8 iops=27010
+ Step-9 iops=24555
+Step-10 iops=28087
+----------------
+IOPS - AVG: 26201 MIX: 24555 MAX: 28087
+
+[ ———————————————————————— RAND-WRITE ———————————————————————— ]
+filename: /dev/rbd1, rw: randwrite, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 1
+----------------
+ Step-1 iops=184
+ Step-2 iops=218
+ Step-3 iops=182
+ Step-4 iops=166
+ Step-5 iops=218
+ Step-6 iops=181
+ Step-7 iops=221
+ Step-8 iops=183
+ Step-9 iops=170
+Step-10 iops=186
+----------------
+IOPS - AVG: 190 MIX: 166 MAX: 221
+
+filename: /dev/rbd1, rw: randwrite, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 2
+----------------
+ Step-1 iops=217
+ Step-2 iops=187
+ Step-3 iops=225
+ Step-4 iops=186
+ Step-5 iops=185
+ Step-6 iops=200
+ Step-7 iops=186
+ Step-8 iops=174
+ Step-9 iops=185
+Step-10 iops=208
+----------------
+IOPS - AVG: 195 MIX: 174 MAX: 225
+
+filename: /dev/rbd1, rw: randwrite, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 4
+----------------
+ Step-1 iops=209
+ Step-2 iops=181
+ Step-3 iops=222
+ Step-4 iops=192
+ Step-5 iops=177
+ Step-6 iops=205
+ Step-7 iops=184
+ Step-8 iops=169
+ Step-9 iops=216
+Step-10 iops=186
+----------------
+IOPS - AVG: 194 MIX: 169 MAX: 222
+
+filename: /dev/rbd1, rw: randwrite, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 8
+----------------
+ Step-1 iops=188
+ Step-2 iops=223
+ Step-3 iops=191
+ Step-4 iops=189
+ Step-5 iops=179
+ Step-6 iops=217
+ Step-7 iops=183
+ Step-8 iops=185
+ Step-9 iops=185
+Step-10 iops=211
+----------------
+IOPS - AVG: 195 MIX: 179 MAX: 223
+
+filename: /dev/rbd1, rw: randwrite, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 16
+----------------
+ Step-1 iops=200
+ Step-2 iops=171
+ Step-3 iops=204
+ Step-4 iops=207
+ Step-5 iops=180
+ Step-6 iops=221
+ Step-7 iops=176
+ Step-8 iops=169
+ Step-9 iops=187
+Step-10 iops=168
+----------------
+IOPS - AVG: 188 MIX: 168 MAX: 221
+
+[ ———————————————————————— RAND-READ  ———————————————————————— ]
+filename: /dev/rbd1, rw: randread, bs: 4k, rwmixread: 100, iodepth: 16, numjobs: 1
+----------------
+ Step-1 iops=13489
+ Step-2 iops=13789
+ Step-3 iops=13895
+ Step-4 iops=13589
+ Step-5 iops=13588
+ Step-6 iops=13842
+ Step-7 iops=14224
+ Step-8 iops=13608
+ Step-9 iops=13738
+Step-10 iops=13766
+----------------
+IOPS - AVG: 13752 MIX: 13489 MAX: 14224

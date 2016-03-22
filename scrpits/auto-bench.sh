@@ -50,11 +50,12 @@ function msg() {
 }
 
 function osd_bench() {
+  sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
+
   echo "********* Benchmark and check all osd *********"
 
   FILE_PATH="${STORE_PATH}/osd_bench/${DATE}/osd-bench.txt"
   OSD_IDS=$(sudo ceph osd tree | grep -o 'osd\.[0-9]*')
-
 
   for osd in ${OSD_IDS}; do
     msg "[ -------- ${osd} -------- ]" ${FILE_PATH}
@@ -65,6 +66,7 @@ function osd_bench() {
 function rados_bench() {
   local block_size=${1:-"4"}
   local pg_num=${2:-"32"}
+  sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 
   echo "********* Benchmarking ceph rados storage pool (bs=${block_size}k, pg_num=${pg_num}) *********"
 
@@ -74,13 +76,13 @@ function rados_bench() {
   sleep 15
 
   msg "\nTASK [ RADOS benchmark a ceph storage pool (write) ]" "${FILE_PATH}/rados-write-${block_size}.txt"
-  rados bench -p scbench ${RUN_TIME} -b ${block_size}K write --no-cleanup >> "${FILE_PATH}/rados-write-${block_size}.txt"
+  rados bench -p scbench ${RUN_TIME} -b ${block_size}K write -t 8 --no-cleanup >> "${FILE_PATH}/rados-write-${block_size}.txt"
 
   msg "\nTASK [ RADOS benchmark a ceph storage pool (read_seq) ]" "${FILE_PATH}/rados-read-seq-${block_size}.txt"
-  rados bench -p scbench ${RUN_TIME}  seq >> "${FILE_PATH}/rados-read-seq-${block_size}.txt"
+  rados bench -p scbench ${RUN_TIME} seq -t 8 >> "${FILE_PATH}/rados-read-seq-${block_size}.txt"
 
   msg "\nTASK [ RADOS benchmark a ceph storage pool (read_rand) ]" "${FILE_PATH}/rados-read-rand-${block_size}.txt"
-  rados bench -p scbench ${RUN_TIME} rand >> "${FILE_PATH}/rados-read-rand-${block_size}.txt"
+  rados bench -p scbench ${RUN_TIME} rand -t 8 >> "${FILE_PATH}/rados-read-rand-${block_size}.txt"
 
   # Clean  and delete radso pool
   rados -p scbench cleanup
@@ -97,6 +99,7 @@ function fio_run() {
 function rbd_bench() {
   local block_size=${1:-"4"}
   local pg_num=${2:-"32"}
+  sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 
   echo "********* Benchmarking ceph rados block device (bs=${block_size}k, pg_num=${pg_num}) *********"
 
@@ -133,6 +136,7 @@ function rgw_swift_bench() {
   local put_number=${1:-"1000"}
   local get_number=${2:-"100"}
   local url="http:\/\/${RADOSGW_URL}\/auth\/v1.0\/"
+  sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 
   echo "********* Benchmarking ceph radosw gateway for swift (put_num=${put_number}, get_num=${get_number}) *********"
 
@@ -156,6 +160,7 @@ function rgw_swift_bench() {
 function cephfs_bench() {
   local block_size=${1:-"4"}
   local admin_secret=$(cat /etc/ceph/ceph.client.admin.keyring | grep key | awk '{print $3}')
+  sudo echo 3 | sudo tee /proc/sys/vm/drop_caches && sudo sync
 
   echo "********* Benchmarking ceph file system (bs=${block_size}k) *********"
 
@@ -175,8 +180,8 @@ function cephfs_bench() {
   for types in ${FIO_TYPES}; do
     msg "\nTASK [ Benchmark a ceph block device (fio-${types}) ]" "${FILE_PATH}-fio-${types}.txt"
     fio --filename=ceph-fuse --direct=1 --rw=${types} \
-    --ioengine=libaio --bs=${block_size}k --rwmixread=100 --iodepth=1 \
-    --numjobs=1 --runtime=${RUN_TIME} --group_reporting \
+    --ioengine=libaio --bs=${block_size}k --rwmixread=100 --iodepth=16 \
+    --numjobs=16 --runtime=${RUN_TIME} --group_reporting \
     --name=bench-fs >> "${FILE_PATH}-fio-${types}.txt"
   done
 
