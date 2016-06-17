@@ -1,17 +1,9 @@
 # rados block device using rbd-bench
 
-- [Configuration and command](#configuration-and-command)
 - [4k seq](#4k-seq)
 - [4M seq](#4m-seq)
 - [4k rand](#4k-rand)
 - [4M rand](#4m-rand)
-
-## Configuration and command
-```sh
-$ rbd bench-write block-device --io-size 4K \
---io-threads 1 --io-total 1024M --io-pattern seq \
---pool=bench
-```
 
 ### 4k seq
 ------------------------ Test 1 ------------------------

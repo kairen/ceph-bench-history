@@ -1,4 +1,4 @@
-# benchmark 1
+# benchmark ssd 1
 Benchmarking at ```2016-06-16-14:29:51```。Link structure
 
 - [OSD Tree](#osd-tree)
@@ -10,7 +10,7 @@ Benchmarking at ```2016-06-16-14:29:51```。Link structure
 - [rados block device using fio-libaio](fio-libaio-block-iops.md)
 - [rados file system using fio-libaio](fio-libaio-filesystem-iops.md)
 - [rados gateway using swift-bench](radosgw-swift-bench.md)
-- [rados gateway using cosbench](cosbench-swift.md)
+- [rados gateway using cosbench](cosbench/README.md)
 
 ## OSD Tree
 ceph osd tree command output:

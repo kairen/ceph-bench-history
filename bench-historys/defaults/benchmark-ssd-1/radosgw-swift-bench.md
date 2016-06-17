@@ -1,43 +1,11 @@
 # rados block device using rbd-bench
 
-- [Configuration and command](#configuration-and-command)
 - [4096 bytes 100 object 100 get](#4096-bytes-100-object-100-get)
 - [4096 bytes 500 object 100 get](#4096-bytes-500-object-100-get)
 - [4096 bytes 1000 object 100 get](#4096-bytes-1000-object-100-get)
 - [40960 bytes 100 object 100 get](#40960-bytes-100-object-100-get)
 - [40960 bytes 500 object 100 get](#40960-bytes-500-object-100-get)
 - [40960 bytes 1000 object 100 get](#40960-bytes-1000-object-100-get)
-
-## Configuration and command
-Create user：
-```sh
-$ radosgw-admin user create --uid="benchmark" --display-name="benchmark"
-$ radosgw-admin subuser create --uid=benchmark --subuser=benchmark:swift --access=full
-$ radosgw-admin key create --subuser=benchmark:swift --key-type=swift --secret=guessme
-$ radosgw-admin user modify --uid=benchmark --max-buckets=0
-```
-
-Run swift-bench job：
-```sh
-$ swift-bench -c 64 -s 4096 -n 1000 -g 100 swift-bench.conf
-```
-組態檔```swift-bench.conf```如下所示：
-```
-[bench]
-auth = http://10.26.1.235:7480/auth/v1.0
-user = benchmark:swift
-key = guessme
-auth_version = 1.0
-
-concurrency = 10
-object_size = 1
-num_objects = 1000
-num_gets = 10000
-delete = yes
-policy_name = gold
-```
-
-單位為```objects/sec```。
 
 ## 4096 bytes 100 object 100 get
 ------------------------ Test 1 ------------------------

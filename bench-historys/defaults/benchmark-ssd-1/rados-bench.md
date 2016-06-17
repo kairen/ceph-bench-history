@@ -1,26 +1,9 @@
 # rados object using rados-bench
 
-- [Configuration and command](#configuration-and-command)
 - [4k write](#4k-write)
 - [4M write](#4m-write)
 - [seq read](#rand-read)
 - [rand read](#rand-read)
-
-## Configuration and command
-Write：
-```sh
-$ rados bench -p bench 20 -b 4K write -t 1 --no-cleanup
-```
-
-Read：
-```sh
-$ rados bench -p bench 20 -t 1 seq
-```
-
-Cleanup：
-```sh
-$ rados -p bench cleanup
-```
 
 ### 4k write
 ------------------------ Test 1 ------------------------

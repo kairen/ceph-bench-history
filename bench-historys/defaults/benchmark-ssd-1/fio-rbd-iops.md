@@ -1,6 +1,5 @@
 # rados block device using fio-rbd
 
-- [Configuration and command](#configuration-and-command)
 - [Write](#write)
 - [Read](#read)
 - [Read Write](#read-write)
@@ -9,52 +8,6 @@
 - [Rand Read Write](#rand-read-write)
 - [Throughput Write](#throughput-write)
 - [Throughput Read](#throughput-read)
-
-## Configuration and command
-以下為測試的組態檔與項目連結。組態檔如下：
-```sh
-[global]
-# write_iops_log=write_iops_log
-# write_bw_log=write_bw_log
-# write_lat_log=write_lat_log
-
-ioengine=rbd
-clientname=admin
-pool=bench
-rbdname=block-device
-rw=randrw
-bs=4k
-runtime=20
-numjobs=1
-direct=1
-
-[rbd_iodepth32]
-iodepth=32
-```
-
-IOPs Write：
-```sh
-$ fio --direct="1" --ioengine="rbd" --clientname="admin" --pool="bench" \
---rbdname="block-device" --bs="4k" --rw="write" \
---runtime="20" --iodepth="16" --group_reporting \
---name="fio-rbd"
-```
-
-IOPs Read：
-```sh
-$ fio --direct="1" --ioengine="rbd" --clientname="admin" --pool="bench" \
---rbdname="block-device" --bs="4k" --rw="read" --numjobs="1" \
---runtime="20" --iodepth="16" --group_reporting \
---name="fio-rbd"
-```
-
-Throughput Write and read 指令：
-```sh
-$ fio --direct="1" --ioengine="rbd" --clientname="admin" --pool="bench" \
---rbdname="block-device" --bs="4M" --rw="write" --group_reporting \
---runtime="60" --iodepth="16" --size="5G" \
---name="fio-rbd"
-```
 
 ### WRITE
 ------------------------ Test 1 ------------------------
