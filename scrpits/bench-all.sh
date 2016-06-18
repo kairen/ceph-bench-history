@@ -95,7 +95,8 @@ function rados_bench() {
     local path="${OUTPUT_DATE_DIR}/rados-bench"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg} ${SIZE}
+    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool set bench size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
 
     for i in $(seq 1 ${num}); do
@@ -131,7 +132,8 @@ function rbd_bench() {
     local path="${OUTPUT_DATE_DIR}/rbd-bench"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg} ${SIZE}
+    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool set bench size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
 
@@ -169,7 +171,8 @@ function fio_rbd_bench() {
     local path="${OUTPUT_DATE_DIR}/fio-rbd"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg} ${SIZE}
+    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool set bench size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
 
@@ -218,7 +221,8 @@ function fio_libaio_bd_bench() {
     local path="${OUTPUT_DATE_DIR}/fio-libaio-bd"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg} ${SIZE}
+    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool set bench size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
     rbd map block-device -p bench
@@ -275,8 +279,10 @@ function fio_libaio_fs_bench() {
     local keypath="/etc/ceph/ceph.client.admin.keyring"
     mkdir -p ${path}
 
-    ceph osd pool create cephfs_data ${pg} ${pg} ${SIZE}
-    ceph osd pool create cephfs_metadata ${pg} ${pg} ${SIZE}
+    ceph osd pool create cephfs_data ${pg} ${pg}
+    ceph osd pool set cephfs_data size ${SIZE}
+    ceph osd pool create cephfs_metadata ${pg} ${pg}
+    ceph osd pool set cephfs_metadata size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     ceph fs new cephfs cephfs_metadata cephfs_data
 
