@@ -50,12 +50,12 @@ PG_NUMS="32 64 128 256"
 
 function task_msg() {
   sync
-  printf "\n[ TASK %-.40s ]\n" "${1} ****************************************"
+  printf "[ TASK %-.40s ]\n" "${1} **************************************************"
 }
 
 function step_msg() {
   sync
-  printf "\n Step %-.30s \n" "${1} ------------------------------"
+  printf "Step - %-.40s \n" "${1} **************************************************"
 }
 
 function init_directory() {
@@ -106,15 +106,15 @@ function rados_bench() {
 
         step_msg "Benchmark rados pool (seq)"
         rados bench -p bench ${RADOS_JOB_RUNTIME} \
-        -t 1 seq >> "${path}/write-${i}-${pg}-${bs}.txt"
+        -t 1 seq >> "${path}/seq-${i}-${pg}-${bs}.txt"
 
         step_msg "Benchmark rados pool (rand)"
         rados bench -p bench ${RADOS_JOB_RUNTIME} \
-        -t 1 rand >> "${path}/write-${i}-${pg}-${bs}.txt"
+        -t 1 rand >> "${path}/rand-${i}-${pg}-${bs}.txt"
     done
 
     # Clean and delete radso pool
-    rados -p scbench cleanup
+    rados -p bench cleanup
     ceph osd pool delete bench bench --yes-i-really-really-mean-it
 }
 
@@ -125,7 +125,7 @@ function rbd_bench() {
     task_msg "RADOS Block Device (pg=${1}, bs=${2})"
 
     local pg=${1:-"64"}
-    local bs=${$2:-"4k"}
+    local bs=${2:-"4k"}
     local num=${3:-"1"}
     local path="${OUTPUT_DATE_DIR}/rbd-bench"
     mkdir -p ${path}
@@ -149,7 +149,7 @@ function rbd_bench() {
                                      --io-threads 1 \
                                      --io-total 1024M \
                                      --io-pattern rand \
-                                     --pool=bench > "${path}/seq-${i}-${pg}-${bs}.txt"
+                                     --pool=bench > "${path}/rand-${i}-${pg}-${bs}.txt"
     done
 
     # Clean and delete radso pool
@@ -164,7 +164,7 @@ function fio_rbd_bench() {
     task_msg "FIO RBD Eninge (pg=${1}, bs=${2})"
 
     local pg=${1:-"64"}
-    local bs=${$2:-"4k"}
+    local bs=${2:-"4k"}
     local num=${3:-"1"}
     local path="${OUTPUT_DATE_DIR}/fio-rbd"
     mkdir -p ${path}
@@ -213,7 +213,7 @@ function fio_libaio_bd_bench() {
     task_msg "FIO Libaio Eninge for bd (pg=${1}, bs=${2})"
 
     local pg=${1:-"64"}
-    local bs=${$2:-"4k"}
+    local bs=${2:-"4k"}
     local num=${3:-"1"}
     local path="${OUTPUT_DATE_DIR}/fio-libaio-bd"
     mkdir -p ${path}
@@ -269,7 +269,7 @@ function fio_libaio_fs_bench() {
     task_msg "FIO Libaio Eninge for fs (pg=${1}, bs=${2})"
 
     local pg=${1:-"64"}
-    local bs=${$2:-"4k"}
+    local bs=${2:-"4k"}
     local num=${3:-"1"}
     local path="${OUTPUT_DATE_DIR}/fio-libaio-fs"
     local keypath="/etc/ceph/ceph.client.admin.keyring"
@@ -331,9 +331,9 @@ function rgw_swift_bench() {
     task_msg "RADOS Gateway Swift (c=${1}, s=${2}, n=${3}, g="${4}")"
 
     local c=${1:-"64"}
-    local s=${$2:-"4096"}
-    local n=${$3:-"100"}
-    local g=${$4:-"100"}
+    local s=${2:-"4096"}
+    local n=${3:-"100"}
+    local g=${4:-"100"}
     local num=${5:-"1"}
     local path="${OUTPUT_DATE_DIR}/swift-bench"
     mkdir -p ${path}
