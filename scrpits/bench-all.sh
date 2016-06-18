@@ -16,10 +16,10 @@ OUTPUT_PATH="/var/www/html/${BENCHMAKR_NAME}"
 OUTPUT_DATE_DIR="${OUTPUT_PATH}/${DATE}"
 
 # radowgw address
-RADOSGW_URL="localhost:7480"
+RADOSGW_URL="10.26.1.235:7480"
 
 # cephfs main monitor address
-MON_ADDR="localhost:6789"
+MON_ADDR="10.26.1.232:6789"
 
 # Enable benchmarking multi block_size
 ENADBLE_MULTI_BLOCK=false
@@ -44,9 +44,10 @@ FIO_THG_TYPES="write read"
 SWIFT_OBJECT_SIZES="4096 40960"
 SWIFT_OBJECT_NUMS="100 500 1000"
 
-# Ceph pool pg_num
+# Ceph pool configurations
 PG_NUM="64"
 PG_NUMS="32 64 128 256"
+SIZE="1"
 
 function task_msg() {
   sync
@@ -89,12 +90,12 @@ function rados_bench() {
     task_msg "RADOS Storage Pool (pg=${1}, bs=${2})"
 
     local pg=${1:-"64"}
-    local bs=${$2:-"4k"}
+    local bs=${2:-"4k"}
     local num=${3:-"1"}
     local path="${OUTPUT_DATE_DIR}/rados-bench"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool create bench ${pg} ${pg} ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
 
     for i in $(seq 1 ${num}); do
@@ -130,7 +131,7 @@ function rbd_bench() {
     local path="${OUTPUT_DATE_DIR}/rbd-bench"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool create bench ${pg} ${pg} ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
 
@@ -143,7 +144,6 @@ function rbd_bench() {
                                      --io-pattern seq \
                                      --pool=bench > "${path}/seq-${i}-${pg}-${bs}.txt"
 
-        step_msg "${i}"
         step_msg "Benchmark write rbd (rand)"
         rbd bench-write block-device --io-size ${bs^^} \
                                      --io-threads 1 \
@@ -169,7 +169,7 @@ function fio_rbd_bench() {
     local path="${OUTPUT_DATE_DIR}/fio-rbd"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool create bench ${pg} ${pg} ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
 
@@ -218,7 +218,7 @@ function fio_libaio_bd_bench() {
     local path="${OUTPUT_DATE_DIR}/fio-libaio-bd"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool create bench ${pg} ${pg} ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
     rbd map block-device -p bench
@@ -275,8 +275,8 @@ function fio_libaio_fs_bench() {
     local keypath="/etc/ceph/ceph.client.admin.keyring"
     mkdir -p ${path}
 
-    ceph osd pool create cephfs_data ${pg} ${pg}
-    ceph osd pool create cephfs_metadata ${pg} ${pg}
+    ceph osd pool create cephfs_data ${pg} ${pg} ${SIZE}
+    ceph osd pool create cephfs_metadata ${pg} ${pg} ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     ceph fs new cephfs cephfs_metadata cephfs_data
 
@@ -368,7 +368,7 @@ function rgw_swift_bench() {
 init_directory
 
 # Running benchmark all osd
-osd_bench
+# osd_bench
 
 # Running rados bench (pg, bs, num)
 rados_bench 64 4k 5
