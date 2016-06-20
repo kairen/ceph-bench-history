@@ -48,10 +48,22 @@ SWIFT_OBJECT_NUMS="100 500 1000"
 PG_NUM="64"
 PG_NUMS="32 64 128 256"
 SIZE="1"
+CRUSH_RULESET="0"
 
+# Checking run
+read -p "Do you want to run ${BENCHMAKR_NAME} benchmark?" check
+
+if [ "${check}" != "yes" ] && [ "${check}" != "YES" ]; then
+    echo "Terminating process"
+    exit 1
+fi
+
+# ======================================================================
+# Benchmark script common function
+# ======================================================================
 function task_msg() {
   sync
-  printf "[ TASK %-.40s ]\n" "${1} **************************************************"
+  printf "[ TASK %-.60s ]\n" "${1} ****************************************************************"
 }
 
 function step_msg() {
@@ -382,7 +394,7 @@ rados_bench 64 4M 5
 
 # Running rbd bench (pg, bs, num)
 rbd_bench 64 4k 5
-rados_bench 64 4M 5
+rbd_bench 64 4M 5
 
 # Running fio bd (pg, bs, num)
 fio_rbd_bench 64 4k 5
