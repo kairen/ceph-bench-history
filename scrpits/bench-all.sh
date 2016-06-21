@@ -48,7 +48,7 @@ SWIFT_OBJECT_NUMS="100 500 1000"
 PG_NUM="64"
 PG_NUMS="32 64 128 256"
 SIZE="1"
-CRUSH_RULESET="0"
+CRUSH_RULESET="replicated_ruleset"
 
 # Checking run
 read -p "Do you want to run ${BENCHMAKR_NAME} benchmark?" check
@@ -107,7 +107,7 @@ function rados_bench() {
     local path="${OUTPUT_DATE_DIR}/rados-bench"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool create bench ${pg} ${pg} ${CRUSH_RULESET}
     ceph osd pool set bench size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
 
@@ -144,7 +144,7 @@ function rbd_bench() {
     local path="${OUTPUT_DATE_DIR}/rbd-bench"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool create bench ${pg} ${pg} ${CRUSH_RULESET}
     ceph osd pool set bench size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
@@ -183,7 +183,7 @@ function fio_rbd_bench() {
     local path="${OUTPUT_DATE_DIR}/fio-rbd"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool create bench ${pg} ${pg} ${CRUSH_RULESET}
     ceph osd pool set bench size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
@@ -233,7 +233,7 @@ function fio_libaio_bd_bench() {
     local path="${OUTPUT_DATE_DIR}/fio-libaio-bd"
     mkdir -p ${path}
 
-    ceph osd pool create bench ${pg} ${pg}
+    ceph osd pool create bench ${pg} ${pg} ${CRUSH_RULESET}
     ceph osd pool set bench size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     rbd create block-device --size 10240 -p bench
@@ -291,9 +291,9 @@ function fio_libaio_fs_bench() {
     local keypath="/etc/ceph/ceph.client.admin.keyring"
     mkdir -p ${path}
 
-    ceph osd pool create cephfs_data ${pg} ${pg}
+    ceph osd pool create cephfs_data ${pg} ${pg} ${CRUSH_RULESET}
     ceph osd pool set cephfs_data size ${SIZE}
-    ceph osd pool create cephfs_metadata ${pg} ${pg}
+    ceph osd pool create cephfs_metadata ${pg} ${pg} ${CRUSH_RULESET}
     ceph osd pool set cephfs_metadata size ${SIZE}
     while [ $(ceph -s | grep creating -c) -gt 0 ]; do sleep 1; done
     ceph fs new cephfs cephfs_metadata cephfs_data
@@ -406,10 +406,10 @@ fio_libaio_bd_bench 64 4k 5
 fio_libaio_fs_bench 64 4k 5
 
 # Running swift-bench (c, s, n, g)
-rgw_swift_bench 64 4096 100 100 5
-rgw_swift_bench 64 4096 500 100 5
-rgw_swift_bench 64 4096 1000 100 5
-
-rgw_swift_bench 64 40960 100 100 5
-rgw_swift_bench 64 40960 500 100 5
-rgw_swift_bench 64 40960 1000 100 5
+# rgw_swift_bench 64 4096 100 100 5
+# rgw_swift_bench 64 4096 500 100 5
+# rgw_swift_bench 64 4096 1000 100 5
+#
+# rgw_swift_bench 64 40960 100 100 5
+# rgw_swift_bench 64 40960 500 100 5
+# rgw_swift_bench 64 40960 1000 100 5
