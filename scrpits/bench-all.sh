@@ -51,7 +51,7 @@ SIZE="1"
 CRUSH_RULESET="replicated_ruleset"
 
 # Checking run
-read -p "Do you want to run ${BENCHMAKR_NAME} benchmark?" check
+read -p "Do you want to run \"${BENCHMAKR_NAME}\" benchmark?(yes/no) " check
 
 if [ "${check}" != "yes" ] && [ "${check}" != "YES" ]; then
     echo "Terminating process"
