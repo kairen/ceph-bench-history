@@ -399,10 +399,14 @@ init_directory
 # Running fio bd (pg, bs, num)
 fio_rbd_bench 64 4k 5
 fio_rbd_bench 64 16k 5
+fio_rbd_bench 64 128k 5
+fio_rbd_bench 64 1M 5
+fio_rbd_bench 64 2M 5
+fio_rbd_bench 64 4M 5
 
 # Running fio libaio for bd (pg, bs, num)
-fio_libaio_bd_bench 64 4k 5
-fio_libaio_bd_bench 64 16k 5
+# fio_libaio_bd_bench 64 4k 5
+# fio_libaio_bd_bench 64 128k 5
 
 # Running fio libaio for fs (pg, bs, num)
 # fio_libaio_fs_bench 64 4k 5
@@ -411,7 +415,7 @@ fio_libaio_bd_bench 64 16k 5
 # rgw_swift_bench 64 4096 100 100 5
 # rgw_swift_bench 64 4096 500 100 5
 # rgw_swift_bench 64 4096 1000 100 5
-#
+
 # rgw_swift_bench 64 40960 100 100 5
 # rgw_swift_bench 64 40960 500 100 5
 # rgw_swift_bench 64 40960 1000 100 5
