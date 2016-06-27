@@ -9,7 +9,7 @@
 # |_|\_|\___/  |_| \___| |_|\_\_, |_\___(_|___\__,_|_|
 #
 
-BENCHMAKR_NAME="tuning/hdd"
+BENCHMAKR_NAME="default/journal-1G"
 DATE=$(date +"%Y-%m-%d-%T")
 TIMESTAMPE=$(date +%s)
 OUTPUT_PATH="/var/www/html/${BENCHMAKR_NAME}"
@@ -37,8 +37,8 @@ RADOS_JOB_RUNTIME="20"
 FIO_JOB_RUNTIME="20"
 FIO_IO_DEPTH="16"
 FIO_BLOCK_SIZES="2k 4k 16k 32k 64k 128k 256k 512k 1M 2M 4M 8M"
-FIO_IOPS_TYPES="write read rw randwrite randread randrw"
-FIO_THG_TYPES="write read"
+FIO_IOPS_TYPES="write read randwrite randread"
+FIO_THG_TYPES=""
 
 # Swift bench configurations
 SWIFT_OBJECT_SIZES="4096 40960"
@@ -389,21 +389,23 @@ init_directory
 # osd_bench
 
 # Running rados bench (pg, bs, num)
-rados_bench 64 4k 5
-rados_bench 64 4M 5
+# rados_bench 64 4k 5
+# rados_bench 64 4M 5
 
 # Running rbd bench (pg, bs, num)
-rbd_bench 64 4k 5
-rbd_bench 64 4M 5
+# rbd_bench 64 4k 5
+# rbd_bench 64 4M 5
 
 # Running fio bd (pg, bs, num)
 fio_rbd_bench 64 4k 5
+fio_rbd_bench 64 16k 5
 
 # Running fio libaio for bd (pg, bs, num)
 fio_libaio_bd_bench 64 4k 5
+fio_libaio_bd_bench 64 16k 5
 
 # Running fio libaio for fs (pg, bs, num)
-fio_libaio_fs_bench 64 4k 5
+# fio_libaio_fs_bench 64 4k 5
 
 # Running swift-bench (c, s, n, g)
 # rgw_swift_bench 64 4096 100 100 5
