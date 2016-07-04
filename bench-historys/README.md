@@ -60,16 +60,16 @@ iodepth=32
 IOPs Write：
 ```sh
 $ fio --direct="1" --ioengine="rbd" --clientname="admin" --pool="bench" \
---rbdname="block-device" --bs="4k" --rw="write" \
---runtime="20" --iodepth="16" --group_reporting \
+--rbdname="bd" --bs="4k" --rw="write" \
+--runtime="60" --iodepth="16" --group_reporting \
 --name="fio-rbd"
 ```
 
 IOPs Read：
 ```sh
 $ fio --direct="1" --ioengine="rbd" --clientname="admin" --pool="bench" \
---rbdname="block-device" --bs="4k" --rw="read" --numjobs="1" \
---runtime="20" --iodepth="16" --group_reporting \
+--rbdname="bd" --bs="4k" --rw="read" --numjobs="1" \
+--runtime="60" --iodepth="16" --group_reporting \
 --name="fio-rbd"
 ```
 

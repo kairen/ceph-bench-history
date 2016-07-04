@@ -38,7 +38,7 @@ FIO_JOB_RUNTIME="20"
 FIO_IO_DEPTH="16"
 FIO_BLOCK_SIZES="2k 4k 16k 32k 64k 128k 256k 512k 1M 2M 4M 8M"
 FIO_IOPS_TYPES="write read randwrite randread"
-FIO_THG_TYPES=""
+FIO_THG_TYPES="write read"
 
 # Swift bench configurations
 SWIFT_OBJECT_SIZES="4096 40960"
@@ -49,6 +49,7 @@ PG_NUM="64"
 PG_NUMS="32 64 128 256"
 SIZE="1"
 CRUSH_RULESET="replicated_ruleset"
+CACHE_POOL="cbench"
 
 # Checking run
 read -p "Do you want to run \"${BENCHMAKR_NAME}\" benchmark?(yes/no) " check
@@ -380,6 +381,52 @@ function rgw_swift_bench() {
     done
 }
 
+# ======================================================================
+# Benchmarking cache tiering using rbd
+# ======================================================================
+function cache_tiering_bench() {
+    task_msg "FIO RBD Eninge for Cache Tiering (pg=${1}, bs=${2})"
+
+    local pg=${1:-"64"}
+    local bs=${2:-"4k"}
+    local num=${3:-"1"}
+    local path="${OUTPUT_DATE_DIR}/fio-rbd"
+    mkdir -p ${path}
+
+    rbd create block-device --size 10240 -p bench
+
+    for i in $(seq 1 ${num}); do
+        step_msg "${i}"
+        for name in ${FIO_IOPS_TYPES}; do
+            JOBS=""
+            if [ "${name}" == "read" ] || [ "${name}" == "randread" ]; then
+                 JOBS="--numjobs=1"
+            fi
+
+            step_msg "Fio rbd bd (${name})"
+            fio --direct="1" --ioengine="rbd" \
+                --clientname="admin" --pool="${CACHE_POOL}" \
+                --rbdname="block-device" --bs="${bs}" ${JOBS} \
+                --rw="${name}" --runtime="${FIO_JOB_RUNTIME}" \
+                --iodepth="${FIO_IO_DEPTH}" --group_reporting \
+                --name="fio-rbd" >> "${path}/${name}-${i}-${pg}-${bs}.txt"
+        done
+
+        for name in ${FIO_THG_TYPES}; do
+            step_msg "Fio rbd bd (throughput ${name})"
+            fio --direct="1" --ioengine="rbd" \
+                --clientname="admin" --pool="${CACHE_POOL}" \
+                --rbdname="block-device" --bs="4M" \
+                --rw="${name}" --runtime="60" \
+                --size="5G" --group_reporting --iodepth="${FIO_IO_DEPTH}" \
+                --name="fio-rbd" >> "${path}/throughput-${name}-${i}-${pg}-${bs}.txt"
+        done
+    done
+
+    # Clean and delete radso pool
+    rbd rm block-device -p bench
+}
+
 ##############################
 # benchmarking main executor #
 ##############################
@@ -397,12 +444,12 @@ init_directory
 # rbd_bench 64 4M 5
 
 # Running fio bd (pg, bs, num)
-fio_rbd_bench 64 4k 5
-fio_rbd_bench 64 16k 5
-fio_rbd_bench 64 128k 5
-fio_rbd_bench 64 1M 5
-fio_rbd_bench 64 2M 5
-fio_rbd_bench 64 4M 5
+# fio_rbd_bench 64 4k 5
+# fio_rbd_bench 64 16k 5
+# fio_rbd_bench 64 128k 5
+# fio_rbd_bench 64 1M 5
+# fio_rbd_bench 64 2M 5
+# fio_rbd_bench 64 4M 5
 
 # Running fio libaio for bd (pg, bs, num)
 # fio_libaio_bd_bench 64 4k 5
@@ -419,3 +466,9 @@ fio_rbd_bench 64 4M 5
 # rgw_swift_bench 64 40960 100 100 5
 # rgw_swift_bench 64 40960 500 100 5
 # rgw_swift_bench 64 40960 1000 100 5
+
+# Running fio rbd for cache tiering(pg, bs, num)
+cache_tiering_bench 64 4k 5
+cache_tiering_bench 64 8k 5
+cache_tiering_bench 64 16k 5
+cache_tiering_bench 64 4M 5
